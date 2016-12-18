@@ -1,0 +1,5 @@
+name: EntityRegistrer
+main: fr.tenebrae.entityregistrer.Main
+author: Arektor
+version: 1.0
+description: Public API for registering custom entities easily, and without weird NMS behaviours!
