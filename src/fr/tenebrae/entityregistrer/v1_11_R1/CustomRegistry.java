@@ -9,13 +9,16 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import net.minecraft.server.v1_11_R1.Entity;
 import net.minecraft.server.v1_11_R1.EntityInsentient;
 import net.minecraft.server.v1_11_R1.EntityTypes;
+import net.minecraft.server.v1_11_R1.MinecraftKey;
 import net.minecraft.server.v1_11_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_11_R1.NBTTagCompound;
 import net.minecraft.server.v1_11_R1.NBTTagList;
+import net.minecraft.server.v1_11_R1.RegistryMaterials;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -69,14 +72,11 @@ final public class CustomRegistry {
 	public static void register(final CustomRegistryEntry cre) {
 		if (registryEntries.containsKey(cre.getName())) return;
 		if (Main.enabled) {
-			final Class<? extends EntityInsentient> paramClass = (Class<? extends EntityInsentient>) cre.getCustomClass();
 			final String paramString = cre.getName();
-			final int paramInt = cre.getID();
 			try {
-				((Map<String, Class<? extends Entity>>) getPrivateStatic(EntityTypes.class, "c")).put(paramString, paramClass);
-				((Map<Class<? extends Entity>, String>) getPrivateStatic(EntityTypes.class, "d")).put(paramClass, paramString);
-				((Map<Class<? extends Entity>, Integer>) getPrivateStatic(EntityTypes.class, "f")).put(paramClass, Integer.valueOf(paramInt));
-				((Map<String, Integer>) getPrivateStatic(EntityTypes.class, "g")).put(paramString, Integer.valueOf(paramInt));
+				MinecraftKey key = new MinecraftKey(paramString);
+				((Set<MinecraftKey>) getPrivateStatic(EntityTypes.class, "d")).add(key);
+				((RegistryMaterials<MinecraftKey,Class<?>>) getPrivateStatic(EntityTypes.class, "b")).a(cre.getID(), key, cre.getCustomClass());
 				registryEntries.put(paramString, cre);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -116,14 +116,11 @@ final public class CustomRegistry {
 	@SuppressWarnings("unchecked")
 	public static void unsafeRegister(final CustomRegistryEntry cre) {
 		if (Main.enabled) {
-			final Class<? extends EntityInsentient> paramClass = (Class<? extends EntityInsentient>) cre.getCustomClass();
 			final String paramString = cre.getName();
-			final int paramInt = cre.getID();
 			try {
-				((Map<String, Class<? extends Entity>>) getPrivateStatic(EntityTypes.class, "c")).put(paramString, paramClass);
-				((Map<Class<? extends Entity>, String>) getPrivateStatic(EntityTypes.class, "d")).put(paramClass, paramString);
-				((Map<Class<? extends Entity>, Integer>) getPrivateStatic(EntityTypes.class, "f")).put(paramClass, Integer.valueOf(paramInt));
-				((Map<String, Integer>) getPrivateStatic(EntityTypes.class, "g")).put(paramString, Integer.valueOf(paramInt));
+				MinecraftKey key = new MinecraftKey(paramString);
+				((Set<MinecraftKey>) getPrivateStatic(EntityTypes.class, "d")).add(key);
+				((RegistryMaterials<MinecraftKey,Class<?>>) getPrivateStatic(EntityTypes.class, "b")).a(cre.getID(), key, cre.getCustomClass());
 				registryEntries.put(paramString, cre);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -163,13 +160,9 @@ final public class CustomRegistry {
 	@SuppressWarnings("unchecked")
 	public static void unregister(final CustomRegistryEntry cre) {
 		if (!registryEntries.containsValue(cre)) return;
-		final Class<? extends EntityInsentient> paramClass = (Class<? extends EntityInsentient>) cre.getCustomClass();
 		final String paramString = cre.getName();
 		try {
-			((Map<String, Class<? extends Entity>>) getPrivateStatic(EntityTypes.class, "c")).remove(paramString);
-			((Map<Class<? extends Entity>, String>) getPrivateStatic(EntityTypes.class, "d")).remove(paramClass);
-			((Map<Class<? extends Entity>, Integer>) getPrivateStatic(EntityTypes.class, "f")).remove(paramClass);
-			((Map<String, Integer>) getPrivateStatic(EntityTypes.class, "g")).remove(paramString);
+			((Set<MinecraftKey>) getPrivateStatic(EntityTypes.class, "d")).remove(new MinecraftKey(paramString));
 			registryEntries.remove(cre);
 		} catch (Exception e) {
 			e.printStackTrace();
